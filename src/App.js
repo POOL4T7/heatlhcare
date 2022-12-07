@@ -1,33 +1,30 @@
 import { useState } from 'react';
-import { ethers } from 'ethers';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Signup from './pages/Signup';
+import Landing from './pages/Landing';
+import PatientDashboard from './pages/Patients/Dashboard';
+import './bootstrap.min.css';
 
 function App() {
-  const [account, setAccount] = useState([]);
-  const [userBalance, setUserBalance] = useState();
   const [error, setError] = useState('');
 
-  const connectWallet = async () => {
-    try {
-      if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const accounts = await provider.send('eth_requestAccounts', []);
-        // const signer = provider.getSigner();
-        setAccount(accounts[0]);
-      } else {
-        console.log("Ethereum object doesn't exist");
-      }
-    } catch (e) {
-      setError(e.message);
-    }
-  };
-
   return (
-    <div className='App'>
-      <Navbar account={account} connectWallet={connectWallet} />
-      <Signup />
-    </div>
+    <Router>
+      <Navbar setError={setError} />
+      <main className='container pt-3'>
+        {error && (
+          <div className='container text-center p-5'>
+            <h1>{error}</h1>
+          </div>
+        )}
+        <Routes>
+          <Route path='/' element={<Landing />} />
+          <Route path='/register' element={<Signup />} />
+          <Route path='/dashboard/patient' element={<PatientDashboard />} />
+        </Routes>
+      </main>
+    </Router>
   );
 }
 
