@@ -3,7 +3,7 @@ pragma solidity >=0.4.25 <0.9.0;
 
 contract HealthCare {
     address private owner;
-    uint private reportCount=0;
+    uint private reportCount = 0;
 
     struct Hospital {
         address id;
@@ -18,7 +18,8 @@ contract HealthCare {
         address id;
         string name;
         string email;
-        uint phone;
+        string gender;
+        uint256 phone;
         string type_name;
         string location;
         address hospital;
@@ -30,6 +31,7 @@ contract HealthCare {
         string name;
         uint phone;
         string email;
+        string gender;
         string dob;
         string bloodGroup;
         string permanentAddress;
@@ -104,11 +106,16 @@ contract HealthCare {
         string memory _email,
         string memory _dob,
         string memory _bloodGroup,
-        string memory _permanentAddress
+        string memory _permanentAddress,
+        string memory _gender
     ) public {
         Patient storage p = patients[msg.sender];
-        require(keccak256(abi.encodePacked(_name)) != keccak256(""), "");
+        Doctor storage d = doctors[msg.sender];
+        Hospital memory h = hospitals[msg.sender];
         require(!(p.id > address(0x0)), "Account already present");
+        require(!(d.id > address(0x0)), "Account already present");
+        require(!(h.id > address(0x0)), "Account already present");
+        require(keccak256(abi.encodePacked(_name)) != keccak256(""), "");
         patients[msg.sender] = Patient({
             id: msg.sender,
             name: _name,
@@ -117,29 +124,11 @@ contract HealthCare {
             dob: _dob,
             bloodGroup: _bloodGroup,
             permanentAddress: _permanentAddress,
-            doctor_list: new address[](0)
+            doctor_list: new address[](0),
+            gender: _gender
         });
         emit Signup(msg.sender, _name, "Patient");
     }
-
-    // function getPatientInfo(
-    //     address pAddress
-    // )
-    //     public
-    //     view
-    //     checkDoctorOrHospital(msg.sender)
-    //     checkPatient(pAddress)
-    //     returns (
-    //         string memory name,
-    //         string memory email,
-    //         uint phone,
-    //         Analysis[] memory results,
-    //         address[] memory doctor_list
-    //     )
-    // {
-    //     Patient memory p = patients[pAddress];
-    //     return (p.name, p.email, p.phone, reports[msg.sender], p.doctor_list);
-    // }
 
     function getPatientProfile()
         public
@@ -181,16 +170,16 @@ contract HealthCare {
         d.patient_list.push(msg.sender);
     }
 
-    function removeAccessFromDoctor(
-        address doctor_id
-    ) public checkPatient(msg.sender) checkDoctor(doctor_id) {
-        require(
-            patientToDoctor[msg.sender][doctor_id] > 0,
-            "This Doctor is not assigned"
-        );
-        patientToDoctor[msg.sender][doctor_id] = 0;
-        doctorToPatient[doctor_id][msg.sender] = 0;
-    }
+    // function removeAccessFromDoctor(
+    //     address doctor_id
+    // ) public checkPatient(msg.sender) checkDoctor(doctor_id) {
+    //     require(
+    //         patientToDoctor[msg.sender][doctor_id] > 0,
+    //         "This Doctor is not assigned"
+    //     );
+    //     patientToDoctor[msg.sender][doctor_id] = 0;
+    //     doctorToPatient[doctor_id][msg.sender] = 0;
+    // }
 
     // -------------------------------------------------------------------------------
     //  Doctor
@@ -201,11 +190,16 @@ contract HealthCare {
         string memory email,
         uint phone,
         string memory _type_name,
-        string memory _location
+        string memory _location,
+        string memory _gender
     ) public {
-        Doctor memory d = doctors[msg.sender];
-        require(keccak256(abi.encodePacked(_name)) != keccak256(""), "");
+        Patient storage p = patients[msg.sender];
+        Doctor storage d = doctors[msg.sender];
+        Hospital memory h = hospitals[msg.sender];
+        require(!(p.id > address(0x0)), "Account already present");
         require(!(d.id > address(0x0)), "Account already present");
+        require(!(h.id > address(0x0)), "Account already present");
+        require(keccak256(abi.encodePacked(_name)) != keccak256(""), "");
         doctors[msg.sender] = Doctor({
             id: msg.sender,
             name: _name,
@@ -214,9 +208,19 @@ contract HealthCare {
             type_name: _type_name,
             location: _location,
             hospital: address(0x0),
-            patient_list: new address[](0)
+            patient_list: new address[](0),
+            gender: _gender
         });
         emit Signup(msg.sender, _name, "Doctor");
+    }
+
+    function getDoctorProfile()
+        public
+        view
+        checkDoctor(msg.sender)
+        returns (Doctor memory)
+    {
+        return doctors[msg.sender];
     }
 
     // function addAnalysis(
@@ -256,14 +260,6 @@ contract HealthCare {
     //     reportCount++;
     // }
 
-    // function addSignature(address pat, uint id) public checkDoctor(msg.sender) {
-    //     require(
-    //         patientToDoctor[pat][msg.sender] > 0,
-    //         "Doctor is not assigned to Patient"
-    //     );
-    //     reports[pat][id].signatures.push(msg.sender);
-    // }
-
     // -------------------------------------------------------------------------------
     //  Hospital
     // -------------------------------------------------------------------------------
@@ -275,9 +271,13 @@ contract HealthCare {
         uint _phone,
         string memory _email
     ) public {
+        Patient storage p = patients[msg.sender];
+        Doctor storage d = doctors[msg.sender];
         Hospital memory h = hospitals[msg.sender];
-        require(keccak256(abi.encodePacked(name)) != keccak256(""), "");
+        require(!(p.id > address(0x0)), "Account already present");
+        require(!(d.id > address(0x0)), "Account already present");
         require(!(h.id > address(0x0)), "Account already present");
+        require(keccak256(abi.encodePacked(name)) != keccak256(""), "");
         hospitals[msg.sender] = Hospital(
             msg.sender,
             name,
@@ -321,21 +321,4 @@ contract HealthCare {
         }
         revert("NO Account found");
     }
-
-    // function getDoctorInfo(
-    //     address dAddress
-    // )
-    //     public
-    //     view
-    //     checkDoctor(dAddress)
-    //     returns (
-    //         string memory name,
-    //         string memory email,
-    //         uint phone,
-    //         address hospital
-    //     )
-    // {
-    //     Doctor memory d = doctors[dAddress];
-    //     return (d.name, d.email, d.phone, d.hospital);
-    // }
 }

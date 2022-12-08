@@ -43,6 +43,49 @@ export const getUserProfileDetails = () => async (dispatch) => {
   }
 };
 
+export const getDoctorProfileDetails = () => async (dispatch) => {
+  try {
+    dispatch({ type: USER_PROFILE_DETAILS_REQUEST });
+    let data = {};
+    const { ethereum } = window;
+    if (ethereum) {
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const TaskContract = new ethers.Contract(
+        contract.networks[5777].address,
+        contract.abi,
+        signer
+      );
+      data = await TaskContract.getDoctorProfile();
+    }
+    console.log('data', data);
+    const { name, email, location, patient_list, hospital, type_name } = data;
+    dispatch({
+      type: USER_PROFILE_DETAILS_SUCCESS,
+      payload: {
+        user: {
+          name,
+          email,
+          location,
+          patient_list,
+          hospital,
+          type: type_name,
+        },
+      },
+    });
+  } catch (e) {
+    dispatch({
+      type: USER_PROFILE_DETAILS_FAIL,
+      payload: {
+        error:
+          e.response && !e.response.data.success ? e.response.data : e.message,
+        success: false,
+        msg: 'User profile fetching failed, server error',
+      },
+    });
+  }
+};
+
 // export const updateUserProfile = (user) => async (dispatch) => {
 //     try {
 //         dispatch({ type: USER_UPDATE_PROFILE_REQUEST });

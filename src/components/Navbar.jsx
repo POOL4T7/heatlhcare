@@ -120,69 +120,55 @@ const Navbar = ({ setError }) => {
                   >
                     Login
                   </button>
-                  <Link to='/register' className='btn btn-link me-3'>
-                    Register
-                  </Link>
+                  <div className='dropdown'>
+                    <button
+                      className='btn btn-primary dropdown-toggle'
+                      type='button'
+                      id='dropdownMenu2'
+                      data-mdb-toggle='dropdown'
+                      aria-expanded='false'
+                    >
+                      Register
+                    </button>
+                    <ul
+                      className='dropdown-menu'
+                      aria-labelledby='dropdownMenu2'
+                    >
+                      <li>
+                        <Link
+                          to='/register/patient'
+                          className='dropdown-item'
+                          type='button'
+                        >
+                          Patient
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to='/register/doctor'
+                          className='dropdown-item'
+                          type='button'
+                        >
+                          Doctor
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to='/register/hospital'
+                          className='dropdown-item'
+                          type='button'
+                        >
+                          Hospital
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
                 </>
               )}
             </div>
           </div>
         </div>
       </nav>
-      {/* <nav classNameName='navbar navbar-expand-lg navbar-light bg-light'>
-        <div classNameName='container'>
-          <a classNameName='navbar-brand' href='/'>
-            HP
-          </a>
-          <button
-            classNameName='navbar-toggler'
-            type='button'
-            data-bs-toggle='collapse'
-            data-bs-target='#navbarSupportedContent'
-            aria-controls='navbarSupportedContent'
-            aria-expanded='false'
-            aria-label='Toggle navigation'
-          >
-            <span classNameName='navbar-toggler-icon'></span>
-          </button>
-          <div classNameName='collapse navbar-collapse' id='navbarSupportedContent'>
-            <ul classNameName='navbar-nav me-auto mb-2 mb-lg-0'>
-              <li classNameName='nav-item'>
-                <a classNameName='nav-link active' aria-current='page' href='/'>
-                  Home
-                </a>
-              </li>
-            </ul>
-            <div classNameName='d-flex'>
-              {userInfo?.account ? (
-                <>
-                  <button classNameName='btn btn-outline-primary mx-1'>
-                    {userInfo.name.substr(0, 1)}
-                  </button>
-                  <button
-                    classNameName='btn btn-outline-danger mx-1'
-                    onClick={logoutHandler}
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    classNameName='btn btn-outline-success mx-1'
-                    onClick={connectWallet}
-                  >
-                    Login
-                  </button>
-                  <Link classNameName='btn btn-outline-success mx-1' to='/register'>
-                    Register
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav> */}
     </>
   );
 };

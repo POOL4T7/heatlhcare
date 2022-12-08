@@ -14,7 +14,7 @@ import { ethers } from 'ethers';
 import contract from '../abis/HealthCare.json';
 
 export const register =
-  (name, phone, gender, email, bloodGroup, address, dob) =>
+  (name, phone, gender, email, bloodGroup, address, dob, type, role) =>
   async (dispatch) => {
     try {
       dispatch({ type: USER_REGISTER_REQUEST });
@@ -30,14 +30,26 @@ export const register =
           contract.abi,
           signer
         );
-        data = await TaskContract.addPatient(
-          name,
-          phone,
-          email,
-          dob,
-          bloodGroup,
-          address
-        );
+        if (role === 'Patient') {
+          data = await TaskContract.addPatient(
+            name,
+            phone,
+            email,
+            dob,
+            bloodGroup,
+            address,
+            gender
+          );
+        } else if (role === 'Doctor') {
+          data = await TaskContract.addDoctor(
+            name,
+            email,
+            phone,
+            type,
+            address,
+            gender
+          );
+        }
         const transactionReceipt = await data.wait();
         if (transactionReceipt.status !== 1) {
           dispatch({
@@ -52,7 +64,7 @@ export const register =
           type: USER_REGISTER_SUCCESS,
           payload: {
             success: true,
-            userInfo: { account: accounts[0], name: name, role: 'Patient' },
+            userInfo: { account: accounts[0], name: name, role: role },
             msg: 'Registartion success',
           },
         });
@@ -60,7 +72,7 @@ export const register =
           type: USER_LOGIN_SUCCESS,
           payload: {
             success: true,
-            userInfo: { account: accounts[0], name: name, role: 'Patient' },
+            userInfo: { account: accounts[0], name: name, role: role },
             msg: 'Login success',
           },
         });
